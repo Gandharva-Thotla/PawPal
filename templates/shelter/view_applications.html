@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Review Adoption Applications{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Adoption Applications Queue</h2>
+            <p class="text-muted small mb-0">Review applicant qualifications, verify references, and coordinate adoption handovers.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('shelter_dashboard') }}" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="fa-solid fa-arrow-left me-1"></i> Dashboard
+            </a>
+            <a href="{{ url_for('shelter_records') }}" class="btn btn-teal rounded-pill px-4">
+                <i class="fa-solid fa-award me-1"></i> Adoption Records
+            </a>
+        </div>
+    </div>
+
+    <!-- If detailed application is selected for review -->
+    {% if selected_app %}
+        <div class="card border-0 shadow-card rounded-4 p-4 p-md-5 mb-5 border-start border-4 border-warning">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 border-bottom pb-4 mb-4">
+                <div>
+                    <span class="badge bg-warning bg-opacity-10 text-dark font-monospace text-xs px-3 py-1 rounded-pill fw-bold mb-2">
+                        Tracking Ref: {{ selected_app.tracking_code }}
+                    </span>
+                    <h3 class="fw-bold text-dark mb-1">Application for {{ selected_app.pet_name }}</h3>
+                    <small class="text-muted">Submitted on {{ selected_app.submitted_at }} by <strong>{{ selected_app.applicant_name }}</strong></small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-secondary bg-opacity-10 text-dark border px-3 py-2 fs-6">
+                        Status: {{ selected_app.status }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <!-- Applicant Contact Info -->
+                <div class="col-md-6">
+                    <div class="card bg-light border-0 rounded-4 p-4 h-100">
+                        <h6 class="fw-bold text-dark mb-3">Applicant & Household Profile</h6>
+                        <ul class="list-unstyled small text-secondary mb-0 space-y-2">
+                            <li><strong class="text-dark">Full Name:</strong> {{ selected_app.applicant_name }}</li>
+                            <li><strong class="text-dark">Email:</strong> {{ selected_app.applicant_email }}</li>
+                            <li><strong class="text-dark">Phone:</strong> {{ selected_app.applicant_phone }}</li>
+                            <li><strong class="text-dark">Address:</strong> {{ selected_app.address }}</li>
+                            <li><strong class="text-dark">Residence:</strong> {{ selected_app.housing_type }} ({{ selected_app.ownership }})</li>
+                            <li><strong class="text-dark">Fenced Yard:</strong> {{ 'Yes (' + selected_app.fence_height + ')' if selected_app.has_fenced_yard else 'No' }}</li>
+                            <li><strong class="text-dark">Household:</strong> {{ selected_app.adults_in_home }} Adults, {{ selected_app.children_in_home }} Children</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pet Care & Experience -->
+                <div class="col-md-6">
+                    <div class="card bg-light border-0 rounded-4 p-4 h-100">
+                        <h6 class="fw-bold text-dark mb-3">Care Experience & References</h6>
+                        <ul class="list-unstyled small text-secondary mb-0 space-y-2">
+                            <li><strong class="text-dark">Current Pets:</strong> {{ selected_app.current_pets or 'None' }}</li>
+                            <li><strong class="text-dark">Hours Pet Alone:</strong> {{ selected_app.hours_alone }}</li>
+                            <li><strong class="text-dark">Activity Level:</strong> {{ selected_app.activity_level }}</li>
+                            <li><strong class="text-dark">Vet Reference:</strong> {{ selected_app.vet_reference or 'None listed' }}</li>
+                            <li><strong class="text-dark">Landlord Approval:</strong> {{ selected_app.landlord_approval or 'N/A' }}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Motivation -->
+                <div class="col-12">
+                    <div class="card bg-light border-0 rounded-4 p-4">
+                        <h6 class="fw-bold text-dark mb-2">Statement of Motivation</h6>
+                        <p class="small text-secondary mb-0 leading-relaxed">{{ selected_app.motivation }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update Status Form -->
+            <div class="card bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-4 p-4">
+                <h6 class="fw-bold text-dark mb-3">Update Evaluation Status & Coordinator Notes</h6>
+                <form method="POST" action="{{ url_for('update_application_status', app_id=selected_app.id) }}" class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-secondary">New Status</label>
+                        <select name="status" class="form-select">
+                            <option value="Under Review" {% if selected_app.status == 'Under Review' %}selected{% endif %}>Under Review</option>
+                            <option value="Home Visit Scheduled" {% if selected_app.status == 'Home Visit Scheduled' %}selected{% endif %}>Schedule Home Visit / Meet & Greet</option>
+                            <option value="Approved" {% if selected_app.status == 'Approved' %}selected{% endif %}>Approve for Adoption</option>
+                            <option value="Completed" {% if selected_app.status == 'Completed' %}selected{% endif %}>Completed & Finalize Adoption</option>
+                            <option value="Declined" {% if selected_app.status == 'Declined' %}selected{% endif %}>Decline Application</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-secondary">Coordinator Timeline Note</label>
+                        <input type="text" name="timeline_note" class="form-control" placeholder="e.g. Virtual home visit conducted; stellar references verified.">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-dark w-100 py-2 rounded-3">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Applications Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase text-muted fw-bold">
+                    <tr>
+                        <th class="ps-4">Ref Code</th>
+                        <th>Pet</th>
+                        <th>Applicant</th>
+                        <th>Date</th>
+                        <th>Current Status</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="font-monospace fw-bold text-warning">{{ app.tracking_code }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="{{ app.primary_photo }}" class="rounded-2 object-fit-cover" style="width: 36px; height: 36px;">
+                                    <strong class="text-dark">{{ app.pet_name }}</strong>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ app.applicant_name }}</div>
+                                <small class="text-muted">{{ app.applicant_email }} &bull; {{ app.applicant_phone }}</small>
+                            </td>
+                            <td class="small text-muted">{{ app.submitted_at[:10] }}</td>
+                            <td>
+                                {% if app.status == 'Submitted' %}
+                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-2.5 py-1 rounded-pill">Submitted</span>
+                                {% elif app.status == 'Under Review' %}
+                                    <span class="badge bg-warning bg-opacity-10 text-dark border border-warning border-opacity-25 px-2.5 py-1 rounded-pill">Under Review</span>
+                                {% elif app.status == 'Home Visit Scheduled' %}
+                                    <span class="badge bg-purple bg-opacity-10 text-purple border border-purple border-opacity-25 px-2.5 py-1 rounded-pill" style="color: #8b5cf6;">Home Visit</span>
+                                {% elif app.status == 'Approved' %}
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2.5 py-1 rounded-pill">Approved</span>
+                                {% elif app.status == 'Completed' %}
+                                    <span class="badge bg-teal bg-opacity-10 text-teal border border-teal border-opacity-25 px-2.5 py-1 rounded-pill" style="color: #0d9488;">Completed</span>
+                                {% else %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2.5 py-1 rounded-pill">{{ app.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                <a href="{{ url_for('shelter_applications', app_id=app.id) }}" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                                    Review Questionnaire
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

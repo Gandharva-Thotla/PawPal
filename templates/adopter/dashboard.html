@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}My Adoption Applications{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Welcome Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Adopter Portal</h2>
+            <p class="text-muted small mb-0">Welcome back, <strong>{{ session.user_name }}</strong>! Track your submitted applications below.</p>
+        </div>
+        <a href="{{ url_for('index') }}" class="btn btn-paw rounded-pill px-4">
+            <i class="fa-solid fa-plus me-1"></i> Browse More Pets
+        </a>
+    </div>
+
+    <!-- Applications Card -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+        <div class="card-header bg-white p-4 border-bottom">
+            <h5 class="fw-bold text-dark mb-0">My Submitted Applications ({{ applications|length }})</h5>
+        </div>
+
+        {% if applications %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-uppercase fw-bold text-muted">
+                        <tr>
+                            <th class="ps-4">Tracking Code</th>
+                            <th>Pet</th>
+                            <th>Shelter</th>
+                            <th>Submitted Date</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                            <tr>
+                                <td class="ps-4">
+                                    <span class="font-monospace fw-bold text-warning">{{ app.tracking_code }}</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="{{ app.primary_photo }}" class="rounded-3 object-fit-cover" style="width: 44px; height: 44px;">
+                                        <div>
+                                            <a href="{{ url_for('pet_detail', pet_id=app.pet_id) }}" class="fw-bold text-dark text-decoration-none hover-primary">
+                                                {{ app.pet_name }}
+                                            </a>
+                                            <div class="text-muted text-xs">{{ app.breed }} &bull; {{ app.species }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="small text-secondary">{{ app.shelter_name }}</td>
+                                <td class="small text-muted">{{ app.submitted_at[:10] }}</td>
+                                <td>
+                                    {% if app.status == 'Submitted' %}
+                                        <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-2.5 py-1 rounded-pill">Submitted</span>
+                                    {% elif app.status == 'Under Review' %}
+                                        <span class="badge bg-warning bg-opacity-10 text-dark border border-warning border-opacity-25 px-2.5 py-1 rounded-pill">Under Review</span>
+                                    {% elif app.status == 'Home Visit Scheduled' %}
+                                        <span class="badge bg-purple bg-opacity-10 text-purple border border-purple border-opacity-25 px-2.5 py-1 rounded-pill" style="color: #8b5cf6;">Home Visit</span>
+                                    {% elif app.status == 'Approved' %}
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2.5 py-1 rounded-pill">Approved</span>
+                                    {% elif app.status == 'Completed' %}
+                                        <span class="badge bg-teal bg-opacity-10 text-teal border border-teal border-opacity-25 px-2.5 py-1 rounded-pill" style="color: #0d9488;">Adopted ❤️</span>
+                                    {% else %}
+                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2.5 py-1 rounded-pill">{{ app.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a href="{{ url_for('track_public', code=app.tracking_code) }}" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                                        <i class="fa-solid fa-timeline me-1"></i> View Progress
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="p-5 text-center text-muted">
+                <i class="fa-solid fa-paw fs-1 mb-3 text-secondary"></i>
+                <h5>No adoption applications submitted yet</h5>
+                <p class="small">Browse our available companions and submit your first adoption questionnaire.</p>
+                <a href="{{ url_for('index') }}" class="btn btn-paw rounded-pill px-4">Browse Pets</a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

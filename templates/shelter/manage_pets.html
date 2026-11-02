@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Pet Roster & Status Management{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Pet Roster Management</h2>
+            <p class="text-muted small mb-0">Manage custody status, edit profiles, or mark animals as adopted.</p>
+        </div>
+        <a href="{{ url_for('register_pet') }}" class="btn btn-paw rounded-pill px-4">
+            <i class="fa-solid fa-plus me-1"></i> Register New Pet
+        </a>
+    </div>
+
+    <!-- Pets Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase text-muted fw-bold">
+                    <tr>
+                        <th class="ps-4">Pet Profile</th>
+                        <th>Species / Breed</th>
+                        <th>Age / Gender</th>
+                        <th>Fee</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Update Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pet in pets %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="{{ pet.primary_photo }}" class="rounded-3 object-fit-cover" style="width: 48px; height: 48px;">
+                                    <div>
+                                        <a href="{{ url_for('pet_detail', pet_id=pet.id) }}" class="fw-bold text-dark text-decoration-none">
+                                            {{ pet.name }}
+                                        </a>
+                                        <div class="text-muted text-xs">Microchip: {{ pet.microchip or 'None' }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-warning bg-opacity-10 text-dark small">{{ pet.species }}</span>
+                                <div class="text-muted small">{{ pet.breed }}</div>
+                            </td>
+                            <td class="small text-secondary">{{ pet.age }} ({{ pet.gender }})</td>
+                            <td class="fw-bold text-dark small">${{ "%.0f"|format(pet.adoption_fee) }}</td>
+                            <td>
+                                {% if pet.status == 'Available' %}
+                                    <span class="badge badge-available px-2.5 py-1 rounded-pill">Available</span>
+                                {% elif pet.status == 'Pending' %}
+                                    <span class="badge badge-pending px-2.5 py-1 rounded-pill">Pending</span>
+                                {% else %}
+                                    <span class="badge badge-adopted px-2.5 py-1 rounded-pill">Adopted ❤️</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                <form method="POST" action="{{ url_for('update_pet_status', pet_id=pet.id) }}" class="d-inline-flex gap-2">
+                                    <select name="status" class="form-select form-select-sm" style="width: 140px;" onchange="this.form.submit()">
+                                        <option value="Available" {% if pet.status == 'Available' %}selected{% endif %}>Available</option>
+                                        <option value="Pending" {% if pet.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                        <option value="Adopted" {% if pet.status == 'Adopted' %}selected{% endif %}>Adopted</option>
+                                    </select>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

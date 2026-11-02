@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Certificate of Adoption - {{ record.pet_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Action Bar (hidden when printing) -->
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print" style="max-width: 820px; margin: 0 auto;">
+        <a href="{{ url_for('shelter_records') }}" class="btn btn-outline-secondary rounded-pill px-3">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to Records
+        </a>
+        <button onclick="window.print()" class="btn btn-teal rounded-pill px-4 shadow">
+            <i class="fa-solid fa-print me-1"></i> Print / Download Certificate
+        </button>
+    </div>
+
+    <!-- Official Certificate Frame -->
+    <div id="printableCertificate" class="certificate-frame bg-white shadow-card my-4" style="max-width: 840px; margin: 0 auto;">
+        <!-- Header -->
+        <div class="text-center pb-4 border-bottom border-teal border-opacity-25 mb-4">
+            <span class="badge bg-teal bg-opacity-10 text-teal text-uppercase text-xs fw-bold px-3 py-1 rounded-pill mb-2" style="color: #0d9488; letter-spacing: 0.15em;">
+                🐾 Official Digital Registry Record
+            </span>
+            <h1 class="serif-title display-4 fw-bold text-dark tracking-tight mb-1" style="color: #0f766e;">
+                Certificate of Adoption
+            </h1>
+            <p class="text-muted text-uppercase text-xs fw-bold tracking-widest mb-0">
+                PawPal Animal Welfare & Rescue Network
+            </p>
+        </div>
+
+        <!-- Body -->
+        <div class="py-4 text-center">
+            <p class="fs-6 text-muted fst-italic mb-1">This official document certifies that on the date of</p>
+            <h4 class="fw-bold text-dark mb-4">{{ record.adoption_date }}</h4>
+
+            <!-- Pet Photo & Details Box -->
+            <div class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-4 my-4">
+                <div class="rounded-4 overflow-hidden border border-3 border-teal border-opacity-25 shadow-sm" style="width: 140px; height: 140px; flex-shrink: 0;">
+                    <img src="{{ record.primary_photo }}" alt="{{ record.pet_name }}" class="w-100 h-100 object-fit-cover">
+                </div>
+                <div class="text-md-start">
+                    <h2 class="serif-title display-6 fw-bold mb-1" style="color: #0f766e;">{{ record.pet_name }}</h2>
+                    <p class="text-muted small mb-1 fw-semibold">{{ record.pet_breed }} &bull; {{ record.pet_species }} ({{ record.pet_gender }})</p>
+                    <div class="small font-monospace text-secondary mb-1">Microchip ID: <strong>{{ record.microchip_number }}</strong></div>
+                    <div class="small text-muted">Rabies Tag: {{ record.rabies_tag_number or 'Registered' }}</div>
+                </div>
+            </div>
+
+            <p class="fs-6 text-muted fst-italic mt-4 mb-1">was legally and lovingly adopted into the forever home of</p>
+            <h2 class="serif-title fw-bold text-warning text-decoration-underline text-underline-offset-4 mb-1" style="color: #ea580c !important;">
+                {{ record.adopter_name }}
+            </h2>
+            <p class="small text-muted mb-0">{{ record.adopter_address }}</p>
+        </div>
+
+        <!-- Signatures & Verification Seal -->
+        <div class="pt-5 mt-4 border-top border-teal border-opacity-25">
+            <div class="row align-items-end text-center g-4">
+                <!-- Director Signature -->
+                <div class="col-4">
+                    <div class="serif-title fs-5 fw-bold text-dark fst-italic border-bottom pb-1 mb-1">
+                        {{ record.shelter_director }}
+                    </div>
+                    <small class="d-block fw-bold text-secondary text-xs">Shelter Director / Veterinarian</small>
+                    <small class="text-muted text-xs">{{ record.shelter_name }}</small>
+                </div>
+
+                <!-- Gold Verified Seal -->
+                <div class="col-4">
+                    <div class="certificate-seal">
+                        <div class="text-xs fw-black tracking-wider text-uppercase">PAWPAL</div>
+                        <div class="text-xs font-monospace fw-bold" style="font-size: 0.65rem;">VERIFIED</div>
+                        <div class="text-xs opacity-75" style="font-size: 0.6rem;">★ OFFICIAL ★</div>
+                    </div>
+                </div>
+
+                <!-- Adopter Commitment -->
+                <div class="col-4">
+                    <div class="serif-title fs-5 fw-bold text-dark fst-italic border-bottom pb-1 mb-1">
+                        {{ record.adopter_name }}
+                    </div>
+                    <small class="d-block fw-bold text-secondary text-xs">Adopter Family Commitment</small>
+                    <small class="text-muted font-monospace text-xs">Registry: {{ record.record_number }}</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Hash Footer -->
+        <div class="mt-5 pt-3 border-top text-center">
+            <small class="text-muted font-monospace text-xs">
+                Verification Hash: {{ record.certificate_code }} &bull; Shelter License: {{ record.shelter_license }}
+            </small>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

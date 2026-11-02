@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card border-0 shadow-card rounded-4 p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="brand-icon-wrapper mx-auto mb-3" style="width: 48px; height: 48px; font-size: 1.4rem;">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">Join the PawPal Community</h3>
+                    <p class="text-muted small">Register to adopt pets or manage your animal shelter</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Account Type</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="role" id="roleAdopter" value="adopter" checked onchange="toggleShelterSelect(false)">
+                                <label class="form-check-label small fw-semibold" for="roleAdopter">
+                                    Adopter (Looking for a Pet)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="role" id="roleShelter" value="shelter" onchange="toggleShelterSelect(true)">
+                                <label class="form-check-label small fw-semibold" for="roleShelter">
+                                    Shelter Staff / Coordinator
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Full Name *</label>
+                        <input type="text" name="name" required class="form-control" placeholder="e.g. Jordan Taylor">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Email Address *</label>
+                        <input type="email" name="email" required class="form-control" placeholder="name@example.com">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Phone Number</label>
+                        <input type="tel" name="phone" class="form-control" placeholder="(555) 123-4567">
+                    </div>
+
+                    <!-- Optional Shelter Assignment if registering as shelter staff -->
+                    <div id="shelterSelectWrap" class="mb-3 d-none">
+                        <label class="form-label small fw-bold text-secondary">Associated Shelter *</label>
+                        <select name="shelter_id" class="form-select">
+                            {% for s in shelters %}
+                                <option value="{{ s.id }}">{{ s.name }} ({{ s.city }}, {{ s.state }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-secondary">Password *</label>
+                        <input type="password" name="password" required minlength="6" class="form-control" placeholder="Create secure password (min. 6 characters)">
+                    </div>
+
+                    <button type="submit" class="btn btn-paw w-100 py-2.5 rounded-3 mb-3">
+                        <i class="fa-solid fa-circle-check me-2"></i> Register Account
+                    </button>
+                </form>
+
+                <div class="mt-4 text-center">
+                    <span class="small text-muted">Already have an account? </span>
+                    <a href="{{ url_for('login') }}" class="small fw-bold text-warning text-decoration-none">Sign In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function toggleShelterSelect(isShelter) {
+    const wrap = document.getElementById('shelterSelectWrap');
+    if (isShelter) {
+        wrap.classList.remove('d-none');
+    } else {
+        wrap.classList.add('d-none');
+    }
+}
+</script>
+{% endblock %}

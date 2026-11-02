@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Shelter Operations Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Header Banner -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <span class="badge bg-warning bg-opacity-10 text-dark text-xs px-3 py-1 rounded-pill fw-bold mb-1">
+                    🏛️ Shelter Management
+                </span>
+                <h2 class="fw-bold text-dark mb-0">{{ shelter.name }}</h2>
+                <small class="text-muted">License: {{ shelter.license_no }} &bull; Director: {{ shelter.director }} &bull; {{ shelter.address }}, {{ shelter.city }}</small>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('register_pet') }}" class="btn btn-paw rounded-pill px-4">
+                    <i class="fa-solid fa-plus me-1"></i> Register New Pet
+                </a>
+                <a href="{{ url_for('shelter_applications') }}" class="btn btn-outline-dark rounded-pill px-3">
+                    <i class="fa-solid fa-list-check me-1"></i> Review Applications
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-md-3">
+            <div class="stat-pill">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-xs text-uppercase fw-bold text-muted">Available Pets</span>
+                    <i class="fa-solid fa-paw text-warning fs-5"></i>
+                </div>
+                <div class="fs-2 fw-black text-dark mt-2">{{ stats.available }}</div>
+                <small class="text-muted text-xs">In shelter custody</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-pill">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-xs text-uppercase fw-bold text-muted">Pending Review</span>
+                    <i class="fa-solid fa-clock text-info fs-5"></i>
+                </div>
+                <div class="fs-2 fw-black text-dark mt-2">{{ stats.pending_apps }}</div>
+                <small class="text-muted text-xs">Incoming questionnaires</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-pill">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-xs text-uppercase fw-bold text-muted">Adoption Pending</span>
+                    <i class="fa-solid fa-spinner text-purple fs-5" style="color: #8b5cf6;"></i>
+                </div>
+                <div class="fs-2 fw-black text-dark mt-2">{{ stats.pending_pets }}</div>
+                <small class="text-muted text-xs">Visits & screening</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-pill">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-xs text-uppercase fw-bold text-muted">Total Adopted</span>
+                    <i class="fa-solid fa-award text-success fs-5"></i>
+                </div>
+                <div class="fs-2 fw-black text-dark mt-2">{{ stats.adopted }}</div>
+                <small class="text-muted text-xs">Forever homes created</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incoming Applications Queue Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+        <div class="card-header bg-white p-4 d-flex justify-content-between align-items-center border-bottom">
+            <div>
+                <h5 class="fw-bold text-dark mb-0">Incoming Applications Queue</h5>
+                <small class="text-muted">Review submissions, update evaluation status, or finalize adoptions</small>
+            </div>
+            <a href="{{ url_for('shelter_applications') }}" class="btn btn-sm btn-link text-warning text-decoration-none fw-bold">View All &rarr;</a>
+        </div>
+
+        {% if applications %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-muted fw-bold">
+                        <tr>
+                            <th class="ps-4">Code</th>
+                            <th>Pet</th>
+                            <th>Applicant</th>
+                            <th>Date</th>
+                            <th>Current Status</th>
+                            <th class="text-end pe-4">Quick Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications[:5] %}
+                            <tr>
+                                <td class="ps-4">
+                                    <span class="font-monospace fw-bold text-warning">{{ app.tracking_code }}</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="{{ app.primary_photo }}" class="rounded-2 object-fit-cover" style="width: 36px; height: 36px;">
+                                        <strong>{{ app.pet_name }}</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ app.applicant_name }}</div>
+                                    <small class="text-muted">{{ app.applicant_email }} &bull; {{ app.applicant_phone }}</small>
+                                </td>
+                                <td class="small text-muted">{{ app.submitted_at[:10] }}</td>
+                                <td>
+                                    <span class="badge bg-warning bg-opacity-10 text-dark border border-warning px-2.5 py-1 rounded-pill small">
+                                        {{ app.status }}
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a href="{{ url_for('shelter_applications', app_id=app.id) }}" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                                        Review Details
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="p-4 text-center text-muted">
+                <p class="mb-0 small">No incoming applications currently pending for your shelter.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

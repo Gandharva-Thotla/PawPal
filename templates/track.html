@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Track Application Status{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Search Header -->
+    <div class="text-center mb-5" style="max-width: 600px; margin: 0 auto;">
+        <span class="badge bg-primary bg-opacity-10 text-primary text-xs px-3 py-1.5 rounded-pill mb-2 fw-bold">
+            🔍 Real-Time Adoption Tracker
+        </span>
+        <h2 class="display-6 fw-bold text-dark mb-2">Track Your Adoption Application</h2>
+        <p class="text-muted small">
+            Enter your unique <strong>Reference Code</strong> (e.g. <code>PAW-78210</code>) or your applicant email address to check the live evaluation status.
+        </p>
+
+        <!-- Search Form -->
+        <form method="GET" action="{{ url_for('track_public') }}" class="mt-4">
+            <div class="input-group input-group-lg shadow-sm rounded-4 overflow-hidden">
+                <input type="text" name="code" required class="form-control border-0 ps-4 fs-6" placeholder="Enter code (PAW-XXXXX) or Email..." value="{{ code or '' }}">
+                <button type="submit" class="btn btn-paw px-4">
+                    <i class="fa-solid fa-search me-1"></i> Track
+                </button>
+            </div>
+        </form>
+
+        <!-- Demo pills -->
+        <div class="mt-3 small text-muted">
+            <span>Try Sample Codes: </span>
+            <a href="{{ url_for('track_public', code='PAW-78210') }}" class="badge bg-light text-dark border text-decoration-none">PAW-78210</a>
+        </div>
+    </div>
+
+    <!-- Result Display -->
+    {% if app_record %}
+        <div class="card border-0 shadow-card rounded-4 overflow-hidden mb-5">
+            <!-- Header Banner -->
+            <div class="p-4 p-md-5 text-white" style="background: linear-gradient(135deg, #ea580c, #f97316);">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <div>
+                        <span class="badge bg-white bg-opacity-25 text-white text-xs px-3 py-1 rounded-pill mb-2">
+                            Ref: <span class="font-monospace fw-bold">{{ app_record.tracking_code }}</span>
+                        </span>
+                        <h2 class="display-6 fw-bold text-white mb-1">Application for {{ app_record.pet_name }}</h2>
+                        <p class="text-white-50 mb-0 small">
+                            Shelter: <strong>{{ app_record.shelter_name }}</strong> &bull; Submitted on {{ app_record.submitted_at[:10] }}
+                        </p>
+                    </div>
+
+                    <div class="bg-white bg-opacity-10 p-3 rounded-3 text-md-end border border-white border-opacity-25">
+                        <span class="text-xs text-white-50 text-uppercase d-block fw-bold">Current Evaluation Status</span>
+                        <span class="fs-4 fw-black text-white">{{ app_record.status }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stepper Progress -->
+            <div class="p-4 bg-light border-bottom">
+                {% set stages = [
+                    ('Submitted', 'Application Logged'),
+                    ('Under Review', 'Vet & Reference Checks'),
+                    ('Home Visit Scheduled', 'Home Walkthrough'),
+                    ('Approved', 'Approved for Adoption'),
+                    ('Completed', 'Adoption Finalized & Welcome Home')
+                ] %}
+
+                {% set stage_keys = ['Submitted', 'Under Review', 'Home Visit Scheduled', 'Approved', 'Completed'] %}
+                {% set current_idx = stage_keys.index(app_record.status) if app_record.status in stage_keys else 0 %}
+
+                <div class="row g-2 text-center">
+                    {% for key, label in stages %}
+                        {% set idx = loop.index0 %}
+                        <div class="col">
+                            <div class="p-2 rounded-3 {{ 'bg-white border shadow-sm' if idx == current_idx else '' }}">
+                                <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center text-xs fw-bold {{ 'bg-success text-white' if idx < current_idx else ('bg-warning text-dark active' if idx == current_idx else 'bg-secondary bg-opacity-25 text-muted') }}" style="width: 28px; height: 28px;">
+                                    {% if idx < current_idx %}
+                                        <i class="fa-solid fa-check"></i>
+                                    {% else %}
+                                        {{ idx + 1 }}
+                                    {% endif %}
+                                </div>
+                                <div class="text-xs fw-bold {{ 'text-dark' if idx == current_idx else 'text-muted' }}">{{ key }}</div>
+                                <div class="text-xs text-muted d-none d-md-block">{{ label }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Body Details -->
+            <div class="card-body p-4 p-md-5">
+                <div class="row g-5">
+                    <!-- Left: Status Timeline -->
+                    <div class="col-lg-7">
+                        <h5 class="fw-bold text-dark mb-4 d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-timeline text-warning"></i> Status History & Shelter Notes
+                        </h5>
+
+                        {% if timeline %}
+                            <div class="ps-2">
+                                {% for event in timeline|reverse %}
+                                    <div class="stepper-item">
+                                        <div class="stepper-dot {{ 'active' if loop.first else '' }}"></div>
+                                        <span class="badge bg-warning bg-opacity-10 text-dark text-xs px-2.5 py-1 rounded-pill mb-1 fw-bold">
+                                            {{ event.status }}
+                                        </span>
+                                        <p class="text-dark fw-semibold mb-1 small">{{ event.note }}</p>
+                                        <small class="text-muted text-xs"><i class="fa-regular fa-clock me-1"></i> {{ event.created_at }}</small>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted small">No updates logged yet.</p>
+                        {% endif %}
+
+                        {% if app_record.notes %}
+                            <div class="alert alert-warning border-0 rounded-3 mt-4 small">
+                                <strong class="d-block mb-1"><i class="fa-solid fa-note-sticky me-1"></i> Coordinator Remarks:</strong>
+                                {{ app_record.notes }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Right: Applicant & Pet Summary -->
+                    <div class="col-lg-5">
+                        <div class="card bg-light border-0 rounded-4 p-4">
+                            <h6 class="fw-bold text-dark mb-3">Applicant Summary</h6>
+                            <ul class="list-unstyled small text-secondary mb-0 space-y-2">
+                                <li><strong class="text-dark">Applicant:</strong> {{ app_record.applicant_name }}</li>
+                                <li><strong class="text-dark">Email:</strong> {{ app_record.applicant_email }}</li>
+                                <li><strong class="text-dark">Phone:</strong> {{ app_record.applicant_phone }}</li>
+                                <li><strong class="text-dark">Residence:</strong> {{ app_record.housing_type }} ({{ app_record.ownership }})</li>
+                                <li><strong class="text-dark">Fenced Yard:</strong> {{ 'Yes (' + app_record.fence_height + ')' if app_record.has_fenced_yard else 'No' }}</li>
+                                <li><strong class="text-dark">Current Pets:</strong> {{ app_record.current_pets or 'None' }}</li>
+                            </ul>
+
+                            <hr class="my-3">
+
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="{{ app_record.primary_photo }}" class="rounded-3 object-fit-cover" style="width: 56px; height: 56px;">
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-0">{{ app_record.pet_name }}</h6>
+                                    <small class="text-muted">{{ app_record.breed }} ({{ app_record.species }})</small>
+                                </div>
+                            </div>
+
+                            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm rounded-pill mt-4">
+                                <i class="fa-solid fa-print me-1"></i> Print Application Record
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% elif code %}
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center" style="max-width: 600px; margin: 0 auto;">
+            <div class="display-3 text-muted mb-3"><i class="fa-solid fa-magnifying-glass"></i></div>
+            <h4 class="fw-bold text-dark">No Application Found</h4>
+            <p class="text-muted small">We couldn't find an application with code or email <code>{{ code }}</code>. Please check your reference code.</p>
+            <div class="mt-2">
+                <a href="{{ url_for('track_public', code='PAW-78210') }}" class="btn btn-paw btn-sm">Try Demo Code: PAW-78210</a>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Register Pet for Adoption{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 860px;">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('shelter_dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item active">Register Pet</li>
+        </ol>
+    </nav>
+
+    <div class="card border-0 shadow-card rounded-4 p-4 p-md-5 mb-5">
+        <div class="border-bottom pb-3 mb-4">
+            <span class="badge bg-warning bg-opacity-10 text-dark text-xs px-3 py-1 rounded-pill fw-bold mb-2">
+                🐾 Shelter Intake Form
+            </span>
+            <h2 class="fw-bold text-dark mb-1">Register a Pet for Adoption</h2>
+            <p class="text-muted small mb-0">List a new animal companion in the PawPal digital directory with photographs and health records.</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('register_pet') }}" enctype="multipart/form-data">
+            
+            <!-- Step 1: Basic Identity -->
+            <div class="mb-4">
+                <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                    <span class="badge bg-warning text-dark rounded-circle" style="width: 24px; height: 24px; font-size: 0.75rem;">1</span>
+                    Pet Identification
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-secondary">Pet Name *</label>
+                        <input type="text" name="name" required class="form-control" placeholder="e.g. Copper">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-secondary">Species *</label>
+                        <select name="species" class="form-select">
+                            <option value="Dog">Dog 🐕</option>
+                            <option value="Cat">Cat 🐈</option>
+                            <option value="Rabbit">Rabbit 🐇</option>
+                            <option value="Bird">Bird 🦜</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-secondary">Breed *</label>
+                        <input type="text" name="breed" required class="form-control" placeholder="e.g. Beagle Mix">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-secondary">Age *</label>
+                        <input type="text" name="age" required class="form-control" placeholder="e.g. 2 years, 6 months">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-secondary">Gender *</label>
+                        <select name="gender" class="form-select">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-secondary">Size *</label>
+                        <select name="size" class="form-select">
+                            <option value="Small (under 25 lbs)">Small (< 25 lbs)</option>
+                            <option value="Medium (25 - 60 lbs)" selected>Medium (25 - 60 lbs)</option>
+                            <option value="Large (60+ lbs)">Large (60+ lbs)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-secondary">Adoption Fee ($) *</label>
+                        <input type="number" name="adoption_fee" value="120" min="0" step="5" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-secondary">Coat Color & Markings</label>
+                        <input type="text" name="color" class="form-control" placeholder="e.g. Tri-Color, Black & White">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-secondary">Microchip ID</label>
+                        <input type="text" name="microchip" class="form-control" placeholder="e.g. 985-1410-0934-899">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Photographs -->
+            <div class="mb-4">
+                <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                    <span class="badge bg-warning text-dark rounded-circle" style="width: 24px; height: 24px; font-size: 0.75rem;">2</span>
+                    Upload Photographs
+                </h5>
+                <div class="p-4 bg-light rounded-4 border mb-3">
+                    <label class="form-label small fw-bold text-secondary mb-1">Choose Photo File from Computer</label>
+                    <input type="file" name="pet_photo_file" accept="image/*" class="form-control mb-3">
+                    
+                    <div class="text-center text-muted text-xs my-2">&mdash; OR ENTER IMAGE URL &mdash;</div>
+                    
+                    <input type="url" name="pet_photo_url" id="photoUrlInput" class="form-control" placeholder="https://images.unsplash.com/photo-...">
+
+                    <!-- Preset sample helpers -->
+                    <div class="mt-3 pt-3 border-top">
+                        <span class="text-xs fw-bold text-muted text-uppercase d-block mb-2">Or click a sample photo:</span>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" onclick="document.getElementById('photoUrlInput').value='https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=800&q=80'" class="btn btn-sm btn-outline-secondary text-xs">🐕 Golden Retriever</button>
+                            <button type="button" onclick="document.getElementById('photoUrlInput').value='https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=800&q=80'" class="btn btn-sm btn-outline-secondary text-xs">🐶 French Bulldog</button>
+                            <button type="button" onclick="document.getElementById('photoUrlInput').value='https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=800&q=80'" class="btn btn-sm btn-outline-secondary text-xs">🐈 Cute Cat</button>
+                            <button type="button" onclick="document.getElementById('photoUrlInput').value='https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?auto=format&fit=crop&w=800&q=80'" class="btn btn-sm btn-outline-secondary text-xs">🐇 Lop Bunny</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Medical & Compatibility -->
+            <div class="mb-4">
+                <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                    <span class="badge bg-warning text-dark rounded-circle" style="width: 24px; height: 24px; font-size: 0.75rem;">3</span>
+                    Health & Temperament
+                </h5>
+                <div class="p-3 bg-light rounded-4 border mb-3">
+                    <div class="row g-3">
+                        <div class="col-6 col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="vaccinated" id="vaxCheck" checked>
+                                <label class="form-check-label small fw-semibold" for="vaxCheck">Vaccinated</label>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="neutered" id="neuterCheck" checked>
+                                <label class="form-check-label small fw-semibold" for="neuterCheck">Spayed / Neutered</label>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="house_trained" id="houseCheck" checked>
+                                <label class="form-check-label small fw-semibold" for="houseCheck">House Trained</label>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="good_with_kids" id="kidsCheck" checked>
+                                <label class="form-check-label small fw-semibold" for="kidsCheck">Good with Kids</label>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="good_with_dogs" id="dogsCheck" checked>
+                                <label class="form-check-label small fw-semibold" for="dogsCheck">Good with Dogs</label>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="good_with_cats" id="catsCheck">
+                                <label class="form-check-label small fw-semibold" for="catsCheck">Good with Cats</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-secondary">Personality Traits (comma separated)</label>
+                        <input type="text" name="personality" class="form-control" value="Playful, Affectionate, Gentle" placeholder="e.g. Playful, Loving, Energetic">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-secondary">Special Medical / Dietary Needs</label>
+                        <input type="text" name="special_needs" class="form-control" value="None" placeholder="e.g. None or Special food">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold text-secondary">Pet Bio & Story *</label>
+                        <textarea name="bio" rows="4" required class="form-control" placeholder="Describe the pet's temperament, rescue background, favorite activities, and ideal family..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between pt-3 border-top">
+                <a href="{{ url_for('shelter_dashboard') }}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                <button type="submit" class="btn btn-paw btn-lg rounded-pill px-5 shadow">
+                    <i class="fa-solid fa-plus me-2"></i> Publish Pet for Adoption
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawPal - {% block title %}Digital Pet Adoption Portal{% endblock %}</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans & Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5.3.2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome 6.5.1 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom Design System Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark-slate shadow-sm py-2">
+            <div class="container">
+                <!-- Brand Logo -->
+                <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('index') }}">
+                    <div class="brand-icon-wrapper">
+                        <i class="fa-solid fa-paw"></i>
+                    </div>
+                    <div>
+                        <span class="brand-text">Paw<span style="color: #ea580c;">Pal</span></span>
+                        <span class="brand-badge">Pet Adoption Portal</span>
+                    </div>
+                </a>
+
+                <!-- Mobile Toggler -->
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Nav Items -->
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'index' %}active text-warning fw-semibold{% endif %}" href="{{ url_for('index') }}">
+                                <i class="fa-solid fa-compass me-1"></i> Browse Pets
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'track_public' %}active text-warning fw-semibold{% endif %}" href="{{ url_for('track_public') }}">
+                                <i class="fa-solid fa-magnifying-glass me-1"></i> Track Status
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'shelters_list' %}active text-warning fw-semibold{% endif %}" href="{{ url_for('shelters_list') }}">
+                                <i class="fa-solid fa-shield-cat me-1"></i> Shelters
+                            </a>
+                        </li>
+
+                        {% if session.user_id %}
+                            {% if session.role == 'shelter' %}
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle text-warning fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="fa-solid fa-house-chimney-medical me-1"></i> Shelter Ops
+                                    </a>
+                                    <ul class="dropdown-menu shadow border-0 rounded-3">
+                                        <li><a class="dropdown-item py-2" href="{{ url_for('shelter_dashboard') }}"><i class="fa-solid fa-chart-line me-2 text-primary"></i> Operations Dashboard</a></li>
+                                        <li><a class="dropdown-item py-2" href="{{ url_for('register_pet') }}"><i class="fa-solid fa-plus-circle me-2 text-success"></i> Register New Pet</a></li>
+                                        <li><a class="dropdown-item py-2" href="{{ url_for('manage_pets') }}"><i class="fa-solid fa-list-check me-2 text-warning"></i> Pet Roster & Status</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item py-2" href="{{ url_for('shelter_applications') }}"><i class="fa-solid fa-file-pen me-2 text-danger"></i> Review Applications</a></li>
+                                        <li><a class="dropdown-item py-2" href="{{ url_for('shelter_records') }}"><i class="fa-solid fa-award me-2 text-info"></i> Adoption Records & Certs</a></li>
+                                    </ul>
+                                </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'adopter_dashboard' %}active text-warning fw-semibold{% endif %}" href="{{ url_for('adopter_dashboard') }}">
+                                        <i class="fa-solid fa-heart me-1"></i> My Applications
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                    </ul>
+
+                    <!-- Right Side Actions & Auth -->
+                    <div class="d-flex align-items-center gap-2">
+                        {% if session.user_id %}
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-light dropdown-toggle d-flex align-items-center gap-2 rounded-pill px-3 py-1" type="button" data-bs-toggle="dropdown">
+                                    <i class="fa-solid fa-circle-user text-warning"></i>
+                                    <span>{{ session.user_name }}</span>
+                                    <span class="badge bg-warning text-dark text-xs">{{ session.role | capitalize }}</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
+                                    <li class="px-3 py-1 text-muted text-xs">Signed in as <strong>{{ session.user_email }}</strong></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    {% if session.role == 'shelter' %}
+                                        <li><a class="dropdown-item" href="{{ url_for('shelter_dashboard') }}"><i class="fa-solid fa-gauge me-2"></i> Shelter Dashboard</a></li>
+                                    {% else %}
+                                        <li><a class="dropdown-item" href="{{ url_for('adopter_dashboard') }}"><i class="fa-solid fa-heart me-2"></i> My Applications</a></li>
+                                    {% endif %}
+                                    <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Sign Out</a></li>
+                                </ul>
+                            </div>
+                        {% else %}
+                            <a href="{{ url_for('login') }}" class="btn btn-sm btn-outline-light rounded-pill px-3">Sign In</a>
+                            <a href="{{ url_for('register') }}" class="btn btn-sm btn-paw rounded-pill px-3">Join PawPal</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Flash Messages Container -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show rounded-3 shadow-sm border-0 d-flex align-items-center gap-2" role="alert">
+                        {% if category == 'success' %}
+                            <i class="fa-solid fa-circle-check text-success fs-5"></i>
+                        {% elif category == 'danger' or category == 'error' %}
+                            <i class="fa-solid fa-circle-exclamation text-danger fs-5"></i>
+                        {% elif category == 'warning' %}
+                            <i class="fa-solid fa-triangle-exclamation text-warning fs-5"></i>
+                        {% else %}
+                            <i class="fa-solid fa-circle-info text-info fs-5"></i>
+                        {% endif %}
+                        <div class="flex-grow-1">{{ message }}</div>
+                        <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content Body -->
+    <main class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark-slate text-light py-5 mt-5 border-top border-secondary border-opacity-25 no-print">
+        <div class="container">
+            <div class="row g-4 align-items-center">
+                <div class="col-md-5">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="brand-icon-wrapper" style="width: 32px; height: 32px; font-size: 0.95rem;">
+                            <i class="fa-solid fa-paw"></i>
+                        </div>
+                        <span class="fs-5 fw-bold text-white">PawPal</span>
+                    </div>
+                    <p class="text-secondary small mb-0">
+                        A modern digital pet adoption platform connecting verified animal shelters, rescues, and compassionate adopters.
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="text-uppercase text-warning text-xs fw-bold mb-2 tracking-wider">Navigation</h6>
+                    <ul class="list-unstyled small mb-0 space-y-1">
+                        <li><a href="{{ url_for('index') }}" class="text-secondary text-decoration-none hover-white">Browse Pets</a></li>
+                        <li><a href="{{ url_for('track_public') }}" class="text-secondary text-decoration-none hover-white">Application Tracker</a></li>
+                        <li><a href="{{ url_for('shelters_list') }}" class="text-secondary text-decoration-none hover-white">Certified Shelters</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <span class="badge bg-secondary bg-opacity-25 text-light text-xs px-3 py-2 rounded-pill">
+                        🐾 Zero-Kill Rescue Advocate
+                    </span>
+                    <p class="text-secondary small mt-2 mb-0">
+                        &copy; {{ current_year }} PawPal Portal. Built with Python & Flask.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5.3.2 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

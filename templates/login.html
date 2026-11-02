@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-card rounded-4 p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="brand-icon-wrapper mx-auto mb-3" style="width: 48px; height: 48px; font-size: 1.4rem;">
+                        <i class="fa-solid fa-paw"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">Welcome Back</h3>
+                    <p class="text-muted small">Sign in to manage adoptions or track your applications</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted border-end-0"><i class="fa-solid fa-envelope"></i></span>
+                            <input type="email" name="email" required class="form-control border-start-0 ps-0" placeholder="name@example.com" value="{{ request.form.get('email', '') }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-secondary">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted border-end-0"><i class="fa-solid fa-lock"></i></span>
+                            <input type="password" name="password" required class="form-control border-start-0 ps-0" placeholder="Enter password">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-paw w-100 py-2.5 rounded-3 mb-3">
+                        <i class="fa-solid fa-right-to-bracket me-2"></i> Sign In
+                    </button>
+                </form>
+
+                <div class="mt-4 text-center pt-3 border-top">
+                    <span class="small text-muted">Don't have an account yet? </span>
+                    <a href="{{ url_for('register') }}" class="small fw-bold text-warning text-decoration-none">Create Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

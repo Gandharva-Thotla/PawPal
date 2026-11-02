@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Official Adoption Records Registry{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <span class="badge bg-success bg-opacity-10 text-success text-xs px-3 py-1 rounded-pill fw-bold mb-1">
+                🏆 Legal Registry Archive
+            </span>
+            <h2 class="fw-bold text-dark mb-0">Official Adoption Records</h2>
+            <small class="text-muted">Permanent records of finalized adoptions, microchip ownership transfers, and post-adoption wellness follow-ups.</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('export_records_json') }}" class="btn btn-outline-dark rounded-pill px-3">
+                <i class="fa-solid fa-download me-1"></i> Export Records (JSON)
+            </a>
+            <a href="{{ url_for('shelter_dashboard') }}" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="fa-solid fa-arrow-left me-1"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Records Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase text-muted fw-bold">
+                    <tr>
+                        <th class="ps-4">Registry Number</th>
+                        <th>Pet Companion</th>
+                        <th>Adopter Family</th>
+                        <th>Microchip Number</th>
+                        <th>Adoption Date</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rec in records %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="font-monospace fw-bold text-teal" style="color: #0d9488;">{{ rec.record_number }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="{{ rec.primary_photo }}" class="rounded-2 object-fit-cover" style="width: 40px; height: 40px;">
+                                    <div>
+                                        <strong class="text-dark">{{ rec.pet_name }}</strong>
+                                        <div class="text-muted text-xs">{{ rec.pet_breed }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ rec.adopter_name }}</div>
+                                <small class="text-muted">{{ rec.adopter_phone }} &bull; {{ rec.adopter_email }}</small>
+                            </td>
+                            <td class="small font-monospace text-secondary">{{ rec.microchip_number }}</td>
+                            <td class="small text-muted">{{ rec.adoption_date }}</td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{{ url_for('view_certificate', record_id=rec.id) }}" class="btn btn-sm btn-teal rounded-pill px-3">
+                                        <i class="fa-solid fa-award me-1"></i> Certificate
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-toggle="collapse" data-bs-target="#followups-{{ rec.id }}">
+                                        Follow-ups ({{ rec.follow_ups|length }})
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Collapsible Follow-ups Row -->
+                        <tr class="collapse" id="followups-{{ rec.id }}">
+                            <td colspan="6" class="bg-light p-4">
+                                <div class="card border-0 rounded-4 p-4 shadow-sm">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="fw-bold text-dark mb-0">Post-Adoption Wellness Milestones</h6>
+                                        <span class="text-xs text-muted">Tracking home adaptation for {{ rec.pet_name }}</span>
+                                    </div>
+
+                                    <div class="row g-3 mb-4">
+                                        {% for f in rec.follow_ups %}
+                                            <div class="col-md-4">
+                                                <div class="p-3 bg-white border rounded-3">
+                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                        <span class="fw-bold small">{{ f.milestone }}</span>
+                                                        <span class="badge {{ 'bg-success' if f.status == 'Completed' else 'bg-warning text-dark' }} text-xs">
+                                                            {{ f.status }}
+                                                        </span>
+                                                    </div>
+                                                    <small class="text-muted d-block mb-2">Target Date: {{ f.due_date }}</small>
+                                                    <p class="text-secondary small mb-2">{{ f.notes or 'No notes logged.' }}</p>
+                                                    {% if f.status != 'Completed' %}
+                                                        <form method="POST" action="{{ url_for('complete_followup', followup_id=f.id) }}">
+                                                            <button type="submit" class="btn btn-sm btn-success w-100 rounded-pill text-xs">
+                                                                <i class="fa-solid fa-check me-1"></i> Mark Completed
+                                                            </button>
+                                                        </form>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+
+                                    <!-- Schedule New Check-in -->
+                                    <div class="border-top pt-3">
+                                        <span class="text-xs fw-bold text-uppercase text-muted d-block mb-2">Schedule Additional Wellness Check</span>
+                                        <form method="POST" action="{{ url_for('add_followup', record_id=rec.id) }}" class="row g-2">
+                                            <div class="col-md-5">
+                                                <input type="text" name="milestone" required class="form-control form-control-sm" placeholder="e.g. 1 Year Veterinary Health Check">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input type="date" name="due_date" required class="form-control form-control-sm">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button type="submit" class="btn btn-sm btn-paw w-100 rounded-pill">Schedule</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

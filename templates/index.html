@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Find Your Forever Friend{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Hero Banner -->
+    <div class="hero-banner mb-5">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-warning text-dark text-xs px-3 py-1.5 rounded-pill mb-3 fw-bold">
+                    ✨ Certified Animal Shelter Adoption Network
+                </span>
+                <h1 class="display-4 fw-black text-white mb-3 serif-title">
+                    Every rescued pet deserves a loving forever home.
+                </h1>
+                <p class="lead text-slate-300 mb-4" style="color: #cbd5e1; max-width: 620px;">
+                    Browse verified companion animals from licensed non-profit rescue shelters. Submit an online adoption application and follow your evaluation in real time.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="#petsDirectory" class="btn btn-paw btn-lg px-4 fs-6">
+                        <i class="fa-solid fa-magnifying-glass me-2"></i> Explore Pets
+                    </a>
+                    <a href="{{ url_for('track_public') }}" class="btn btn-outline-light btn-lg px-4 fs-6 rounded-3">
+                        <i class="fa-solid fa-list-check me-2"></i> Track Application
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Platform Statistics -->
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-md-3">
+            <div class="stat-pill d-flex align-items-center gap-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: #ffedd5; color: #ea580c; font-size: 1.4rem;">
+                    <i class="fa-solid fa-dog"></i>
+                </div>
+                <div>
+                    <div class="text-secondary text-xs text-uppercase fw-bold">Available Pets</div>
+                    <div class="fs-3 fw-bold text-dark">{{ stats.available_pets }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-pill d-flex align-items-center gap-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: #ecfdf5; color: #10b981; font-size: 1.4rem;">
+                    <i class="fa-solid fa-house-chimney-heart"></i>
+                </div>
+                <div>
+                    <div class="text-secondary text-xs text-uppercase fw-bold">Adopted Homes</div>
+                    <div class="fs-3 fw-bold text-dark">{{ stats.adopted_pets }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-pill d-flex align-items-center gap-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: #eff6ff; color: #0284c7; font-size: 1.4rem;">
+                    <i class="fa-solid fa-file-signature"></i>
+                </div>
+                <div>
+                    <div class="text-secondary text-xs text-uppercase fw-bold">Applications</div>
+                    <div class="fs-3 fw-bold text-dark">{{ stats.total_applications }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-pill d-flex align-items-center gap-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: #f0fdfa; color: #0d9488; font-size: 1.4rem;">
+                    <i class="fa-solid fa-shield-heart"></i>
+                </div>
+                <div>
+                    <div class="text-secondary text-xs text-uppercase fw-bold">Partner Shelters</div>
+                    <div class="fs-3 fw-bold text-dark">{{ stats.total_shelters }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div id="petsDirectory" class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <form method="GET" action="{{ url_for('index') }}" class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-search"></i></span>
+                    <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="Search by name, breed, traits..." value="{{ search_query or '' }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="species" class="form-select" onchange="this.form.submit()">
+                    <option value="all" {% if not selected_species or selected_species == 'all' %}selected{% endif %}>All Species</option>
+                    <option value="Dog" {% if selected_species == 'Dog' %}selected{% endif %}>Dogs 🐕</option>
+                    <option value="Cat" {% if selected_species == 'Cat' %}selected{% endif %}>Cats 🐈</option>
+                    <option value="Rabbit" {% if selected_species == 'Rabbit' %}selected{% endif %}>Rabbits 🐇</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select" onchange="this.form.submit()">
+                    <option value="all" {% if not selected_status or selected_status == 'all' %}selected{% endif %}>All Statuses</option>
+                    <option value="Available" {% if selected_status == 'Available' %}selected{% endif %}>Available Only</option>
+                    <option value="Pending" {% if selected_status == 'Pending' %}selected{% endif %}>Adoption Pending</option>
+                    <option value="Adopted" {% if selected_status == 'Adopted' %}selected{% endif %}>Adopted (Success)</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-dark w-100 rounded-3">Filter</button>
+                {% if search_query or selected_species or selected_status %}
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary rounded-3" title="Clear filters"><i class="fa-solid fa-rotate-left"></i></a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Pet Grid -->
+    {% if pets %}
+        <div class="row g-4">
+            {% for pet in pets %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="pet-card h-100">
+                        <div class="pet-card-img-wrap">
+                            <img src="{{ pet.primary_photo }}" alt="{{ pet.name }}" loading="lazy">
+                            
+                            <!-- Status Badge -->
+                            <div class="position-absolute top-0 start-0 m-3">
+                                {% if pet.status == 'Available' %}
+                                    <span class="badge badge-available px-3 py-1.5 rounded-pill shadow-sm">
+                                        <i class="fa-solid fa-circle me-1 small"></i> Available
+                                    </span>
+                                {% elif pet.status == 'Pending' %}
+                                    <span class="badge badge-pending px-3 py-1.5 rounded-pill shadow-sm">
+                                        <i class="fa-solid fa-clock me-1 small"></i> Pending
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-adopted px-3 py-1.5 rounded-pill shadow-sm">
+                                        <i class="fa-solid fa-heart me-1 small"></i> Adopted
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Adoption Fee Tag -->
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-dark bg-opacity-75 text-white px-2.5 py-1.5 rounded-pill text-xs fw-bold">
+                                    ${{ "%.0f"|format(pet.adoption_fee) }} fee
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card-body p-4 d-flex flex-column justify-content-between flex-grow-1">
+                            <div>
+                                <div class="d-flex align-items-baseline justify-content-between mb-1">
+                                    <h4 class="card-title fw-bold mb-0 text-dark">{{ pet.name }}</h4>
+                                    <span class="badge bg-warning bg-opacity-10 text-warning text-xs text-uppercase fw-bold px-2 py-1 rounded">
+                                        {{ pet.species }}
+                                    </span>
+                                </div>
+                                <p class="text-muted small mb-2">{{ pet.breed }} &bull; {{ pet.age }} ({{ pet.gender }})</p>
+                                <div class="text-secondary small mb-3">
+                                    <i class="fa-solid fa-house me-1 text-warning"></i> {{ pet.shelter_name }}
+                                </div>
+
+                                <!-- Traits -->
+                                {% if pet.personality %}
+                                    <div class="d-flex flex-wrap gap-1 mb-3">
+                                        {% for trait in pet.personality.split(',')[:3] %}
+                                            <span class="badge bg-light text-secondary border text-xs fw-normal px-2 py-1 rounded-pill">
+                                                {{ trait.strip() }}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+
+                                <p class="text-secondary small line-clamp-2 mb-0">
+                                    {{ pet.bio }}
+                                </p>
+                            </div>
+
+                            <div class="pt-4 mt-3 border-top d-flex align-items-center justify-content-between">
+                                <a href="{{ url_for('pet_detail', pet_id=pet.id) }}" class="btn btn-sm btn-link text-dark text-decoration-none fw-bold p-0">
+                                    View Details <i class="fa-solid fa-arrow-right ms-1"></i>
+                                </a>
+
+                                {% if pet.status == 'Available' %}
+                                    <a href="{{ url_for('apply_pet', pet_id=pet.id) }}" class="btn btn-sm btn-paw px-3">
+                                        <i class="fa-solid fa-paw me-1"></i> Adopt Me
+                                    </a>
+                                {% elif pet.status == 'Pending' %}
+                                    <a href="{{ url_for('apply_pet', pet_id=pet.id) }}" class="btn btn-sm btn-outline-warning px-3 text-dark">
+                                        Apply as Backup
+                                    </a>
+                                {% else %}
+                                    <span class="badge bg-light text-muted border px-3 py-2">Found Home ❤️</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5 card border-0 shadow-sm rounded-4 p-5">
+            <div class="display-1 text-muted mb-3">🐶🐱</div>
+            <h4 class="fw-bold text-dark">No pets found matching your query</h4>
+            <p class="text-muted">Try resetting your species or status filter to see all rescue companions.</p>
+            <div class="mt-2">
+                <a href="{{ url_for('index') }}" class="btn btn-paw">Reset All Filters</a>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
